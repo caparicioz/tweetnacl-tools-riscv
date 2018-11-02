@@ -1,0 +1,11 @@
+Project done by Aurora Solis (md716924@iteso.mx) and Christian Aparicio (caparicio0000@hotmail.com).
+Setup: This repository works once the riscv-gnu-toolchain has been succesfully installed and added to the env PATH, this will not be discussed through this file.
+Objective: Create an purpose-enhanced ISA, increasing it's performance in at least 1000x. The specific application for the enhancement is the open source/auditable encryption mechanism of tweetnacl. The implementation has been originally cloned from (https://github.com/sbp/tweetnacl-tools.git).
+
+Steps.
+ 1. Clone original tweetnacl-tools repo.
+ 2. "Sleep" function is not supported in riscv-gnu, it was replaced for NOPS (1s=1 NOP)
+ 3. In tools.c "access" function is not supported in riscv-gnu, it was replaced with fopen to read
+ 4. File handler raises a segfault when it tries to create a new file, to prevent the error a check was implemented, whenever a file needs to be accessed, it must be previously created from scratch (empty).
+ 5. Along dirs for work in gcc or riscv-gcc simultaneously were created.
+
