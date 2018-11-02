@@ -1,4 +1,4 @@
-CC=/home/lucia/Documentos/riscv-tools/bin/riscv64-unknown-elf-gcc
+CC=riscv64-unknown-elf-gcc
 CFLAGS=-O3 -std=c99 -D_POSIX_C_SOURCE=1
 TWEETNACLC=randombytes.c tools.c tweetnacl.c
 TWEETNACL=$(TWEETNACLC) randombytes.h tools.h tweetnacl.h
