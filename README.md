@@ -88,8 +88,8 @@ Encrypting and decrypting:
 $ tweetnacl-keypair alice.pub alice.sec
 $ tweetnacl-keypair bob.pub bob.sec
 $ echo 'Secret message!' > message.txt
-$ tweetnacl-encrypt alice.sec bob.pub message.txt secret.enc
-$ tweetnacl-decrypt alice.pub bob.sec secret.enc -
+$ spike pk tweetnacl-encrypt alice.sec bob.pub message.txt secret.enc
+$ spike pk tweetnacl-decrypt alice.pub bob.sec secret.enc -
 Secret message!
 ```
 
