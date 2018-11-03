@@ -1,7 +1,7 @@
 CC=riscv64-unknown-elf-gcc
 CFLAGS=-O3 -std=c99 -D_POSIX_C_SOURCE=1
-TWEETNACLC=../randombytes.c ../tools.c ../tweetnacl.c
-TWEETNACL=$(TWEETNACLC) ../randombytes.h ../tools.h ../tweetnacl.h
+TWEETNACLC=source/randombytes.c source/tools.c source/tweetnacl.c
+TWEETNACL=$(TWEETNACLC) source/randombytes.h source/tools.h source/tweetnacl.h
 
 all: tweetnacl-decrypt tweetnacl-encrypt tweetnacl-keypair \
      tweetnacl-sigpair tweetnacl-sign tweetnacl-verify
@@ -12,28 +12,28 @@ bin: ;
 clean: ;
 	rm -rf bin
 
-tweetnacl-decrypt: bin $(TWEETNACL) ../tweetnacl-decrypt.c
-	$(CC) $(CFLAGS) $(TWEETNACLC) ../tweetnacl-decrypt.c \
+tweetnacl-decrypt: bin $(TWEETNACL) source/tweetnacl-decrypt.c
+	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-decrypt.c \
 		-o bin/tweetnacl-decrypt
 
-tweetnacl-encrypt: bin $(TWEETNACL) ../tweetnacl-encrypt.c
-	$(CC) $(CFLAGS) $(TWEETNACLC) ../tweetnacl-encrypt.c \
+tweetnacl-encrypt: bin $(TWEETNACL) source/tweetnacl-encrypt.c
+	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-encrypt.c \
 		-o bin/tweetnacl-encrypt
 
-tweetnacl-keypair: bin $(TWEETNACL) ../tweetnacl-keypair.c
-	$(CC) $(CFLAGS) $(TWEETNACLC) ../tweetnacl-keypair.c \
+tweetnacl-keypair: bin $(TWEETNACL) source/tweetnacl-keypair.c
+	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-keypair.c \
 		-o bin/tweetnacl-keypair
 
-tweetnacl-sigpair: bin $(TWEETNACL) ../tweetnacl-sigpair.c
-	$(CC) $(CFLAGS) $(TWEETNACLC) ../tweetnacl-sigpair.c \
+tweetnacl-sigpair: bin $(TWEETNACL) source/tweetnacl-sigpair.c
+	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-sigpair.c \
 		-o bin/tweetnacl-sigpair
 
-tweetnacl-sign: bin $(TWEETNACL) ../tweetnacl-sign.c
-	$(CC) $(CFLAGS) $(TWEETNACLC) ../tweetnacl-sign.c \
+tweetnacl-sign: bin $(TWEETNACL) source/tweetnacl-sign.c
+	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-sign.c \
 		-o bin/tweetnacl-sign
 
-tweetnacl-verify: bin $(TWEETNACL) ../tweetnacl-verify.c
-	$(CC) $(CFLAGS) $(TWEETNACLC) ../tweetnacl-verify.c \
+tweetnacl-verify: bin $(TWEETNACL) source/tweetnacl-verify.c
+	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-verify.c \
 		-o bin/tweetnacl-verify
 
 test: ;
