@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "randombytes.h"
 #include "tools.h"
 #include "tweetnacl.h"
 
 int main(int argc, char *argv[]) {
+    // Calculate the time taken by encryption() 
+    clock_t t; 
+    t = clock(); 
+
     if (argc != 5) error(2,
         "Usage: tweetnacl-encrypt send-key.sec recv-key.pub text.txt text.enc");
 
@@ -61,5 +66,10 @@ int main(int argc, char *argv[]) {
         fputs("\n", out);
     }
     free(encrypted);
+    
+    t = clock() - t; 
+    double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds 
+  
+    printf("Encryption took %f seconds to execute \n", time_taken);
     return 0;
 }

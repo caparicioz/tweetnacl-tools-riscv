@@ -11,4 +11,6 @@ Steps.
  6. Set environment and source file per each dir, since the gcc version should not be modified along the way.
  7. Create scripts to run encryption according to the compiler.
  8. Create scripts to run decryption according to the compiler.
+ 9. Added time.h to measure execution time in c, it does not work in riscv ISA
+
 
