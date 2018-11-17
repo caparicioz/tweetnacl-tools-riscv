@@ -1,16 +1,18 @@
 CC=riscv64-unknown-elf-gcc
-CFLAGS=-O3 -std=c99 -D_POSIX_C_SOURCE=1
+CFLAGS=-O3 -std=c99 -D_POSIX_C_SOURCE=1 
 TWEETNACLC=source/randombytes.c source/tools.c source/tweetnacl.c
 TWEETNACL=$(TWEETNACLC) source/randombytes.h source/tools.h source/tweetnacl.h
 
-all: tweetnacl-decrypt tweetnacl-encrypt tweetnacl-keypair \
-     tweetnacl-sigpair tweetnacl-sign tweetnacl-verify
+all: clean bin tweetnacl-decrypt tweetnacl-encrypt tweetnacl-keypair \
+     tweetnacl-sigpair tweetnacl-sign tweetnacl-verify \
+	 tweetnacl-decrypt-asm tweetnacl-encrypt-asm save-asm \
+	 dump-files
 
 bin: ;
-	mkdir bin
+	mkdir bin asm dump
 
 clean: ;
-	rm -rf bin
+	rm -rf bin asm dump
 
 tweetnacl-decrypt: bin $(TWEETNACL) source/tweetnacl-decrypt.c
 	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-decrypt.c \
@@ -36,6 +38,17 @@ tweetnacl-verify: bin $(TWEETNACL) source/tweetnacl-verify.c
 	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-verify.c \
 		-o bin/tweetnacl-verify
 
+tweetnacl-decrypt-asm: bin $(TWEETNACL) source/tweetnacl-decrypt.c
+	$(CC) $(CFLAGS) -S $(TWEETNACLC) source/tweetnacl-decrypt.c   
+
+tweetnacl-encrypt-asm: bin $(TWEETNACL) source/tweetnacl-encrypt.c
+	$(CC) $(CFLAGS) -S $(TWEETNACLC) source/tweetnacl-encrypt.c 
+
+save-asm: ;
+	mv *.s asm/.
+
+dump-files: ;
+	./dump_files.sh
 test: ;
 	mkdir tmp
 	bin/tweetnacl-keypair tmp/a.pub tmp/a.sec

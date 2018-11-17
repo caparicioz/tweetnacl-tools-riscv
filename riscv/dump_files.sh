@@ -4,6 +4,8 @@ files=( "tweetnacl-decrypt" "tweetnacl-encrypt" "tweetnacl-keypair" "tweetnacl-s
 
 
 i=1
+rm -rf dump
+mkdir dump
 
 for i in ${files[*]}; do
 	echo $i
@@ -15,9 +17,7 @@ for i in ${files[*]}; do
 
 	elif [ -d bin ]
 		then
-			date
-				riscv64-unknown-elf-objdump -dC bin/$i > bin/$i.dump
-			date
+     		riscv64-unknown-elf-objdump -dC bin/$i > dump/$i.dump
 
 	else
 		echo "exit 0"
