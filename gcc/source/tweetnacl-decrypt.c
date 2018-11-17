@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "tools.h"
 #include "tweetnacl.h"
 
 int main(int argc, char *argv[]) {
+    // Calculate the time taken by decryption() 
+    clock_t t; 
+    t = clock(); 
+
     if (argc != 5) error(2,
         "Usage: tweetnacl-decrypt send-key.pub recv-key.sec text.enc text.txt");
 
@@ -53,5 +58,10 @@ int main(int argc, char *argv[]) {
                esize - crypto_box_ZEROBYTES, 1, stdout);
     }
     free(message);
+    
+    t = clock() - t; 
+    double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds 
+  
+    printf("Decryption took %f seconds to execute \n", time_taken);
     return 0;
 }
