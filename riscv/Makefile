@@ -1,5 +1,5 @@
 CC=riscv64-unknown-elf-gcc
-CFLAGS=-O3 -std=c99 -D_POSIX_C_SOURCE=1 
+CFLAGS=-O3 -D_POSIX_C_SOURCE=1 
 TWEETNACLC=source/randombytes.c source/tools.c source/tweetnacl.c
 TWEETNACL=$(TWEETNACLC) source/randombytes.h source/tools.h source/tweetnacl.h
 

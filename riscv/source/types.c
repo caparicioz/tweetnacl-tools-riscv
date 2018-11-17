@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+
 static inline uint32_t rdcycle(void) {
     uint32_t cycle;
     asm volatile ("rdcycle %0" : "=r"(cycle));
