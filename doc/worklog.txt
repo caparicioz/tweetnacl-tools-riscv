@@ -20,5 +20,6 @@ Steps.
  15. With the rdcycles done, now the same mechanisim was implemented to read the other information csrs such as rdtime and rdinstret, this will give us some extra information on the execution of the simulation.
  16. The histogram option was configured in spike ellab and implemented in encrypt-decrypt code, the log can be implemented but slows down the sim time, so it was removed as the information of the histogram can be matched to the dump.
  18. clean_repo.sh was created, this script removes all not needed files to push to head.
+ 19. Riscv dir was copied into riscv_performance, here is where the source code will be modified to enhance performance
   
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ -d sandbox ]] || mkdir sandbox
 if [ -e sandbox/a.pub ] 
 then
     truncate -s 0 sandbox/a.pub
