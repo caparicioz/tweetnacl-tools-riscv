@@ -18,5 +18,7 @@ Steps.
  13. Create dummy scripts to comprehend the usage of rdcycle riscv function.
  14. The execution and analysis of rdcycle function shows that it is giving indeed the cycles count taken by the sim to execute but the compiler always delivers different outputs when adding instructions, but shows consistency when replacing them, so we can partially trust it. 
  15. With the rdcycles done, now the same mechanisim was implemented to read the other information csrs such as rdtime and rdinstret, this will give us some extra information on the execution of the simulation.
+ 16. The histogram option was configured in spike ellab and implemented in encrypt-decrypt code, the log can be implemented but slows down the sim time, so it was removed as the information of the histogram can be matched to the dump.
+ 18. clean_repo.sh was created, this script removes all not needed files to push to head.
   
 
