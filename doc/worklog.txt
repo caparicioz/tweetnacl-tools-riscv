@@ -21,5 +21,34 @@ Steps.
  16. The histogram option was configured in spike ellab and implemented in encrypt-decrypt code, the log can be implemented but slows down the sim time, so it was removed as the information of the histogram can be matched to the dump.
  18. clean_repo.sh was created, this script removes all not needed files to push to head.
  19. Riscv dir was copied into riscv_performance, here is where the source code will be modified to enhance performance
-  
+ 
+ 20. PERFORMANCE ENHANCEMENT
+ Initial Execution results
+                No.cycles		185746628
+                Exec time		1916950
+                Instructions retired	185746768
+
+    20.1 Identified a loop in the c code and mapped it to the dump file, finally look at it in the histogram, it is executed 15492 times.
+         20.1.1. Inside "sv core" function. Loop unroll to FOR. Original code:
+                  FOR(i,4) {
+                    x[5*i] = ld32(c+4*i);
+                    x[1+i] = ld32(k+4*i);
+                    x[6+i] = ld32(in+4*i);
+                    x[11+i] = ld32(k+16+4*i);
+                    }
+
+                New code:
+ 
+                    for (i = 0;i < 4; i+=2) {
+                    x[5*i] = ld32(c+4*i);
+                    x[1+i] = ld32(k+4*i);
+                    x[6+i] = ld32(in+4*i);
+                    x[11+i] = ld32(k+16+4*i);
+                    x[5*(i+1)] = ld32(c+4*(i+1));
+                    x[1+(i+1)] = ld32(k+4*(i+1));
+                    x[6+(i+1)] = ld32(in+4*(i+1));
+                    x[11+(i+1)] = ld32(k+16+4*(i+1));
+                    }
+
+       The changes are keeped but it does not make any improvement to the encryption.
 
