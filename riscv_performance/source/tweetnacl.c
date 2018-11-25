@@ -27,15 +27,35 @@ static u32 L32(u32 x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
 static u32 ld32(const u8 *x)
 {
   u32 u = x[3];
-  u = (u<<8)|x[2];
-  u = (u<<8)|x[1];
-  return (u<<8)|x[0];
+  //u = (u<<8)|x[2];
+  asm volatile ( 
+        "slil8or %[z], %[x], %[y]\n\t" 
+        : [z] "=r" (u) 
+        : [x] "r" (u), [y] "r" (x[2]) ) ;
+
+  //u = (u<<8)|x[1];
+  asm volatile ( 
+        "slil8or %[z], %[x], %[y]\n\t" 
+        : [z] "=r" (u) 
+        : [x] "r" (u), [y] "r" (x[1]) ) ;
+  
+  //return (u<<8)|x[0];
+  asm volatile ( 
+        "slil8or %[z], %[x], %[y]\n\t" 
+        : [z] "=r" (u) 
+        : [x] "r" (u), [y] "r" (x[0]) ) ;
+  return u;
 }
 
 static u64 dl64(const u8 *x)
 {
   u64 i,u=0;
-  FOR(i,8) u=(u<<8)|x[i];
+  FOR(i,8) {//u=(u<<8)|x[i];
+  asm volatile ( 
+        "slil8or %[z], %[x], %[y]\n\t" 
+        : [z] "=r" (u) 
+        : [x] "r" (u), [y] "r" (x[i]) ) ;
+  }
   return u;
 }
 
