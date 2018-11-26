@@ -21,6 +21,9 @@ static inline uint32_t rdinstret(void) {
     return instret;
 }
 int main(int argc, char *argv[]) {
+    uint32_t init_cycles  = rdcycle();       
+    uint32_t init_time    = rdtime();       
+    uint32_t init_instret = rdinstret();       
     if (argc != 5) error(2,
         "Usage: tweetnacl-decrypt send-key.pub recv-key.sec text.enc text.txt");
 
@@ -72,6 +75,9 @@ int main(int argc, char *argv[]) {
     uint32_t cycles  = rdcycle();       
     uint32_t time    = rdtime();       
     uint32_t instret = rdinstret();       
-    printf("No.cycles\t\t%d\nExec time\t\t%d\nInstructions retired\t%d\n", cycles,time,instret);
+    printf("TweetNacl encryption not enhanced results\n\nNo.cycles\t\t\t\t%d\t-\t%d\t=\t%d\nExec time\t\t\t\t%d\t\t-\t%d\t=\t%d\nInstructions retired\t%d\t-\t%d\t=\t%d\n", \
+            cycles, init_cycles, cycles-init_cycles,\
+            time, init_time, time - init_cycles,\
+            instret, init_instret, instret - init_instret);
     return 0;
 }

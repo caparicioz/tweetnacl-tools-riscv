@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ ! -e ../riscv/tweetnacl-decrypt_LordOfTheRings.out ]
+then
+    echo "Decryption with no enhancement should be run first"
+    exit -1
+fi
 if [ ! -e sandbox/LordOfTheRings_encrypted.txt ]
 then
     echo "Can't find encrypted file"
