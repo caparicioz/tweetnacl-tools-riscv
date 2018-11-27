@@ -75,7 +75,12 @@ static int vn(const u8 *x,const u8 *y,int n)
 {
   u32 i,d = 0;
   FOR(i,n) d |= x[i]^y[i];
-  return (1 & ((d - 1) >> 8)) - 1;
+  //return (1 & ((d - 1) >> 8)) - 1;
+asm volatile (
+	"slil8and %[x], %[y], 1 \n" 
+: [x] "=r" (x) 
+: [y] "r" (d) );
+return x;
 }
 
 int crypto_verify_16(const u8 *x,const u8 *y)
