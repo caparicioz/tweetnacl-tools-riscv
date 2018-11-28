@@ -52,17 +52,21 @@ then
     sort -k 2 -n histogram/tweetnacl-encrypt_LordOfTheRings.his > histogram/tweetnacl-encrypt_LordOfTheRings_sort.his 
 else
     echo "Run make"
+    exit -1
 fi
 echo
 cycles_original=`head -n 3 ../riscv/tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $6}'`
 cycles=`head -n 3 tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $6}'`
+cycles_less=`expr $cycles_original - $cycles`
 performance_cycles=$(echo "scale = 3; ($cycles_original - $cycles) * 100 / $cycles_original" | bc)
-echo "Cycle count performance enhancement $performance_cycles %" 
+echo "$cycles_less less cycles executed for a performance enhancement of $performance_cycles %" 
 time_original=`head -n 4 ../riscv/tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $7}'`
 time_=`head -n 4 tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $7}'`
+time_less=`expr $time_original - $time_`
 performance_time=$(echo "scale = 3; ($time_original - $time_) * 100 / $time_original" | bc)
-echo "Time performance enhancement $performance_time %" 
+echo "Encryption took $time_less less time units for a performance enhancement of $performance_time %" 
 instr_original=`head -n 5 ../riscv/tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $7}'`
 instr=`head -n 5 tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $7}'`
 performance_instr=$(echo "scale = 3; ($instr_original - $instr) * 100 / $instr_original" | bc)
-echo "Instructions retired performance enhancement $performance_instr %" 
+instr_less=`expr $instr_original - $instr`
+echo "$instr_less less instructions retired for a performance enhancement of $performance_instr %" 

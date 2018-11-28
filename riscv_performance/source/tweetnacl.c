@@ -28,34 +28,21 @@ static u32 ld32(const u8 *x)
 {
   u32 u = x[3];
   //u = (u<<8)|x[2];
-  asm volatile ( 
-        "slil8or %[z], %[x], %[y]\n\t" 
-        : [z] "=r" (u) 
-        : [x] "r" (u), [y] "r" (x[2]) ) ;
+  asm __volatile__ ("slil8or %[z], %[x], %[y]\n\t" : [z] "=r" (u) : [x] "r" (u), [y] "r" (x[2]) ) ;
 
   //u = (u<<8)|x[1];
-  asm volatile ( 
-        "slil8or %[z], %[x], %[y]\n\t" 
-        : [z] "=r" (u) 
-        : [x] "r" (u), [y] "r" (x[1]) ) ;
+  asm __volatile__ ("slil8or %[z], %[x], %[y]\n\t" : [z] "=r" (u) : [x] "r" (u), [y] "r" (x[1]) ) ;
   
   //return (u<<8)|x[0];
-  asm volatile ( 
-        "slil8or %[z], %[x], %[y]\n\t" 
-        : [z] "=r" (u) 
-        : [x] "r" (u), [y] "r" (x[0]) ) ;
+  asm __volatile__ ("slil8or %[z], %[x], %[y]\n\t" : [z] "=r" (u) : [x] "r" (u), [y] "r" (x[0]) ) ;
   return u;
 }
 
 static u64 dl64(const u8 *x)
 {
   u64 i,u=0;
-  FOR(i,8) {//u=(u<<8)|x[i];
-  asm volatile ( 
-        "slil8or %[z], %[x], %[y]\n\t" 
-        : [z] "=r" (u) 
-        : [x] "r" (u), [y] "r" (x[i]) ) ;
-  }
+  //FOR(i,8) u=(u<<8)|x[i];
+  FOR(i,8) asm __volatile__ ("slil8or %[z], %[x], %[y]\n\t" : [z] "=r" (u) : [x] "r" (u), [y] "r" (x[i]) ) ;
   return u;
 }
 
@@ -73,14 +60,10 @@ sv ts64(u8 *x,u64 u)
 
 static int vn(const u8 *x,const u8 *y,int n)
 {
-  u32 i,d, temp = 0;
+  u32 i,d, temp;
   FOR(i,n) d |= x[i]^y[i];
   //return (1 & ((d - 1) >> 8)) - 1;
-asm volatile (
-	"slil8and %[x], %[y], 8 \n" 
-: [x] "=r" (temp) 
-: [y] "r" (d) );
-return temp;
+  asm __volatile__ ("slil8and %[x], %[y], 8 \n" : [x] "=r" (temp) : [y] "r" (d) ); return temp;
 }
 
 int crypto_verify_16(const u8 *x,const u8 *y)
@@ -95,8 +78,9 @@ int crypto_verify_32(const u8 *x,const u8 *y)
 
 sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
 {
-  u32 w[16],x[16],y[16],t[4];
+  u32 w[16],x[16],y[16],t[4], temp;
   int i,j,m;
+  u8 *tmp;
 
     for (i = 0;i < 4; i+=2) {
     x[5*i] = ld32(c+4*i);
@@ -113,12 +97,14 @@ sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
 
   FOR(i,20) {
     FOR(j,4) {
-      FOR(m,4) t[m] = x[(5*j+4*m)%16];
+      //FOR(m,4) t[m] = x[(5*j+4*m)%16];
+      FOR(m,4) { asm __volatile__ ("idxc16 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (j), [y] "r" (m) ) ; t[m] = x[temp];}
       t[1] ^= L32(t[0]+t[3], 7);
       t[2] ^= L32(t[1]+t[0], 9);
       t[3] ^= L32(t[2]+t[1],13);
       t[0] ^= L32(t[3]+t[2],18);
-      FOR(m,4) w[4*j+(j+m)%4] = t[m];
+      //FOR(m,4) w[4*j+(j+m)%4] = t[m];
+      FOR(m,4) { asm __volatile__ ("idxc4 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (j), [y] "r" (m) ) ; w[temp] = t[m];}
     }
     FOR(m,16) x[m] = w[m];
   }
@@ -130,11 +116,14 @@ sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
       x[6+i] -= ld32(in+4*i);
     }
     FOR(i,4) {
-      st32(out+4*i,x[5*i]);
-      st32(out+16+4*i,x[6+i]);
+      asm __volatile__ ("arg4 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[5*i]);
+      //st32(out+4*i,x[5*i]);
+      asm __volatile__ ("arg16 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[6+i]);
+      //st32(out+16+4*i,x[6+i]);
     }
   } else
-    FOR(i,16) st32(out + 4 * i,x[i] + y[i]);
+    FOR(i,16){asm __volatile__ ("arg4 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[i] + y[i]);}
+    //FOR(i,16) st32(out + 4 * i,x[i] + y[i]);
 }
 
 int crypto_core_salsa20(u8 *out,const u8 *in,const u8 *k,const u8 *c)
@@ -213,7 +202,7 @@ static const u32 minusp[17] = {
 
 int crypto_onetimeauth(u8 *out,const u8 *m,u64 n,const u8 *k)
 {
-  u32 s,i,j,u,x[17],r[17],h[17],c[17],g[17];
+  u32 s,i,j,u,tmp,x[17],r[17],h[17],c[17],g[17];
 
   FOR(j,17) r[j]=h[j]=0;
   FOR(j,16) r[j]=k[j];
@@ -233,7 +222,10 @@ int crypto_onetimeauth(u8 *out,const u8 *m,u64 n,const u8 *k)
     add1305(h,c);
     FOR(i,17) {
       x[i] = 0;
-      FOR(j,17) x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[i + 17 - j]);
+      //FOR(j,17) x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[i + 17 - j]);
+      FOR(j,17)  {asm __volatile__ ("addsub17 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (i), [y] "r" (j)); 
+                  x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[tmp]);
+      }
     }
     FOR(i,17) h[i] = x[i];
     u = 0;

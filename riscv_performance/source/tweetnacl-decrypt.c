@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     uint32_t cycles  = rdcycle();       
     uint32_t time    = rdtime();       
     uint32_t instret = rdinstret();       
-    printf("TweetNacl encryption with enhanced results\n\nNo.cycles\t\t\t\t%d\t-\t%d\t=\t%d\nExec time\t\t\t\t%d\t\t-\t%d\t=\t%d\nInstructions retired\t%d\t-\t%d\t=\t%d\n", \
+    printf("TweetNacl decryption with enhanced results\n\nNo.cycles\t\t\t\t%d\t-\t%d\t=\t%d\nExec time\t\t\t\t%d\t\t-\t%d\t=\t%d\nInstructions retired\t%d\t-\t%d\t=\t%d\n", \
             cycles, init_cycles, cycles-init_cycles,\
             time, init_time, time - init_cycles,\
             instret, init_instret, instret - init_instret);

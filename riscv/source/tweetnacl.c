@@ -53,9 +53,10 @@ sv ts64(u8 *x,u64 u)
 
 static int vn(const u8 *x,const u8 *y,int n)
 {
-  u32 i,d = 0;
+  u32 i,d, temp;
   FOR(i,n) d |= x[i]^y[i];
-  return (1 & ((d - 1) >> 8)) - 1;
+  temp = (1 & ((d - 1) >> 8)) - 1;
+  return temp;
 }
 
 int crypto_verify_16(const u8 *x,const u8 *y)
@@ -70,7 +71,7 @@ int crypto_verify_32(const u8 *x,const u8 *y)
 
 sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
 {
-  u32 w[16],x[16],y[16],t[4];
+  u32 w[16],x[16],y[16],t[4], temp;
   int i,j,m;
 
   FOR(i,4) {
@@ -84,7 +85,7 @@ sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
 
   FOR(i,20) {
     FOR(j,4) {
-      FOR(m,4) t[m] = x[(5*j+4*m)%16];
+      FOR(m,4) {temp = (5*j+4*m)%16; t[m] = x[temp];}
       t[1] ^= L32(t[0]+t[3], 7);
       t[2] ^= L32(t[1]+t[0], 9);
       t[3] ^= L32(t[2]+t[1],13);

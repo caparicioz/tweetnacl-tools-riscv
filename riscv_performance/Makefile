@@ -14,7 +14,7 @@ bin: ;
 clean: ;
 	rm -rf bin asm dump
 
-tweetnacl-decrypt: bin $(TWEETNACL) source/tweetnacl-decrypt.c
+tweetnacl-decrypt: bin $(TWEETNACLD) source/tweetnacl-decrypt.c
 	$(CC) $(CFLAGS) $(TWEETNACLC) source/tweetnacl-decrypt.c \
 		-o bin/tweetnacl-decrypt
 
