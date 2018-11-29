@@ -34,6 +34,11 @@ addsub17.h
 // RD = RS1 + 17 - RS2
 WRITE_RD(sext_xlen(RS1 + 17 - RS2));
 
+packf.h
+//RD=RS1-0xffff-((RS2>>16)&1)
+require_extension('M');
+require_rv64;
+WRITE_RD(sext_xlen((RS1 - 0xffff) - ((RS2 >> 16) & 1)));
 
 
 OPCODES
@@ -46,7 +51,7 @@ idxc16    rd rs1 rs2 31..25=32 14..12=1 6..2=0x1A 1..0=3
 arg4      rd rs1 rs2 31..25=0  14..12=2 6..2=0x1A 1..0=3
 arg16     rd rs1 rs2 31..25=32 14..12=2 6..2=0x1A 1..0=3
 addsub17  rd rs1 rs2 31..25=0  14..12=3 6..2=0x1A 1..0=3
-
+packf     rd rs1 rs2 31..25=32 14..12=3 6..2=0x1A 1..0=3
 
 RISCV-OPC.c
 /*TweetNacl*/
@@ -58,3 +63,4 @@ RISCV-OPC.c
 {"arg4",          "M",   "d,s,t",   MATCH_ARG4, MASK_ARG4, match_opcode, 0 },
 {"arg16",         "M",   "d,s,t",   MATCH_ARG16, MASK_ARG16, match_opcode, 0 },
 {"addsub17",      "M",   "d,s,t",   MATCH_ADDSUB17, MASK_ADDSUB17, match_opcode, 0 },
+{"packf",         "M",   "d,s,t",   MATCH_PACKF, MASK_PACKF, match_opcode, 0 },
