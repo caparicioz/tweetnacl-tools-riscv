@@ -324,7 +324,8 @@ sv pack25519(u8 *o,const gf n)
   FOR(j,2) {
     m[0]=t[0]-0xffed;
     for(i=1;i<15;i++) {
-      m[i]=t[i]-0xffff-((m[i-1]>>16)&1);
+      //m[i]=t[i]-0xffff-((m[i-1]>>16)&1);
+      asm __volatile__ ("packf %[z], %[x], %[y]\n\t" : [z] "=r" (m[i]) : [x] "r" (t[i]), [y] "r" (m[i-1])); 
       m[i-1]&=0xffff;
     }
     m[15]=t[15]-0x7fff-((m[14]>>16)&1);

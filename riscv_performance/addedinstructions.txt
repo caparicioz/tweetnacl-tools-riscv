@@ -1,0 +1,60 @@
+slil8or.h`
+//u = (u<<8)|x[2];
+//RD = (RS1<<8)| RS2
+require_rv64;
+reg_t tmp= sext32(RS1 << (0x8 & 0x1F));
+WRITE_RD( RS2 | tmp);
+
+slil8and.h
+require_rv64;
+reg_t tmp = sext32((RS1 - 0x1) >> (SHAMT & 0x1f));
+WRITE_RD((tmp & 1)-1);
+
+idxc4.h
+//RD = (4*RS1)+(RS1+RS2)%4]
+require_extension('M');
+WRITE_RD(sext_xlen((RS1 * 0x04) + (RS2 + RS1)% 0x4));
+
+idxc16.h
+//RD =(5*RS1+4*RS2)%16
+require_extension('M');
+WRITE_RD(sext_xlen(((RS1 * 0x05) + (RS2 * 0x04)) % 0x10));
+
+arg4.h
+//RD = RS1+4*RS2
+require_extension('M');
+WRITE_RD(sext_xlen(RS1 + (RS2 * 0x04)));
+
+arg16.h
+//RD = RS1+16+4*RS2
+require_extension('M');
+WRITE_RD(sext_xlen(RS1 + 0x10 + (RS2 * 0x04)));
+
+addsub17.h
+// RD = RS1 + 17 - RS2
+WRITE_RD(sext_xlen(RS1 + 17 - RS2));
+
+
+
+OPCODES
+
+#TweetNacl
+slil8or   rd rs1 rs2 31..25=32 14..12=1 6..2=0x0E 1..0=3
+slil8and  rd rs1 31..25=0 shamtw 14..12=3 6..2=0x06 1..0=3
+idxc4     rd rs1 rs2 31..25=0  14..12=1 6..2=0x1A 1..0=3
+idxc16    rd rs1 rs2 31..25=32 14..12=1 6..2=0x1A 1..0=3
+arg4      rd rs1 rs2 31..25=0  14..12=2 6..2=0x1A 1..0=3
+arg16     rd rs1 rs2 31..25=32 14..12=2 6..2=0x1A 1..0=3
+addsub17  rd rs1 rs2 31..25=0  14..12=3 6..2=0x1A 1..0=3
+
+
+RISCV-OPC.c
+/*TweetNacl*/
+{"slil8or",      "64I", "d,s,t",   MATCH_SLIL8OR, MASK_SLIL8OR, match_opcode, 0 },
+{"slil8or",      "64I", "d,s,<",   MATCH_SLIL8OR, MASK_SLIL8OR, match_opcode, INSN_ALIAS },
+{"slil8and",     "64I", "d,s,<",   MATCH_SLIL8AND, MASK_SLIL8AND, match_opcode, 0 },
+{"idxc4",         "M",   "d,s,t",   MATCH_IDXC4, MASK_IDXC4, match_opcode, 0 },
+{"idxc16",        "M",   "d,s,t",   MATCH_IDXC16, MASK_IDXC16, match_opcode, 0 },
+{"arg4",          "M",   "d,s,t",   MATCH_ARG4, MASK_ARG4, match_opcode, 0 },
+{"arg16",         "M",   "d,s,t",   MATCH_ARG16, MASK_ARG16, match_opcode, 0 },
+{"addsub17",      "M",   "d,s,t",   MATCH_ADDSUB17, MASK_ADDSUB17, match_opcode, 0 },
