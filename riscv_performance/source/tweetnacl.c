@@ -328,8 +328,10 @@ sv pack25519(u8 *o,const gf n)
       asm __volatile__ ("packf %[z], %[x], %[y]\n\t" : [z] "=r" (m[i]) : [x] "r" (t[i]), [y] "r" (m[i-1])); 
       m[i-1]&=0xffff;
     }
-    m[15]=t[15]-0x7fff-((m[14]>>16)&1);
-    b=(m[15]>>16)&1;
+    //m[15]=t[15]-0x7fff-((m[14]>>16)&1);
+    asm __volatile__ ("packb %[z], %[x], %[y]\n\t" : [z] "=r" (m[15]) : [x] "r" (t[15]), [y] "r" (m[14])); 
+    //b=(m[15]>>16)&1;
+    asm __volatile__ ("packc %[z], %[x], x0\n\t" : [z] "=r" (b) : [x] "r" (m[15])); 
     m[14]&=0xffff;
     sel25519(t,m,1-b);
   }
@@ -657,7 +659,8 @@ sv scalarmult(gf p[4],gf q[4],const u8 *s)
   set25519(p[2],gf1);
   set25519(p[3],gf0);
   for (i = 255;i >= 0;--i) {
-    u8 b = (s[i/8]>>(i&7))&1;
+    //u8 b = (s[i/8]>>(i&7))&1;
+    u8 b; asm __volatile__("scalu8 %[z], %[x], %[y]\n\t" : [z] "=r" (b) : [x] "r" (s[1/8]), [y] "r" (i));
     cswap(p,q,b);
     add(q,p);
     add(p,p);
@@ -698,7 +701,7 @@ static const u64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 
 
 sv modL(u8 *r,i64 x[64])
 {
-  i64 carry,i,j;
+  i64 carry,i,j,tmp;
   for (i = 63;i >= 32;--i) {
     carry = 0;
     for (j = i - 32;j < i - 12;++j) {
@@ -711,7 +714,8 @@ sv modL(u8 *r,i64 x[64])
   }
   carry = 0;
   FOR(j,32) {
-    x[j] += carry - (x[31] >> 4) * L[j];
+    //x[j] += carry - (x[31] >> 4) * L[j];
+    asm __volatile__ ("modcarry %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (x[31]), [y] "r" (L[j])); x[j] += carry - tmp;
     carry = x[j] >> 8;
     x[j] &= 255;
   }
