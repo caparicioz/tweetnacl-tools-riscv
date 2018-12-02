@@ -63,6 +63,25 @@ require_extension('M');
 require_rv64;
 WRITE_RD(sext_xlen((RS1 >> 16) & 0x1));
 
+modcarrya.h
+//RD = (RS1 +128 ) >> 8
+require_rv64;
+require_extension('M');
+WRITE_RD(sext_xlen((RS1 + 128) >> 8));
+
+modcarryb.h
+//RD = RS1 - (RS2 << 8)
+require_rv64;
+require_extension('M');
+WRITE_RD(sext_xlen(RS1 - (RS2 << 8)));
+
+mfa.h
+//RD = RS1 + (38*RS2) 
+//t[i]+=38*t[i+16];
+require_rv64;
+require_extension('M');
+WRITE_RD(sext_xlen(RS1 + (38 * RS2)));
+
 OPCODES
 
 #TweetNacl
@@ -78,6 +97,9 @@ modcarry  rd rs1 rs2 31..25=32 14..12=2 6..2=0x0E 1..0=3
 scalu8    rd rs1 rs2 31..25=0  14..12=4 6..2=0x1A 1..0=3
 packb     rd rs1 rs2 31..25=32  14..12=4 6..2=0x1A 1..0=3
 packc     rd rs1 24..20=0 31..27=0x1E 14..12=0 26..25=0 6..2=0x1A 1..0=3
+mfa       rd rs1 rs2 31..25=0  14..12=5 6..2=0x1A 1..0=3
+modcarrya rd rs1 24..20=0 31..27=0 14..12=0 26..25=0 6..2=0x1A 1..0=3
+modcarryb rd rs1 rs2 31..25=32 14..12=5 6..2=0x1A 1..0=3
 
 
 RISCV-OPC.c
@@ -96,5 +118,9 @@ RISCV-OPC.c
 {"packb",         "M",   "d,s,t",   MATCH_PACKB, MASK_PACKB, match_opcode, 0 },
 {"packc",         "M",   "d,s,t",   MATCH_PACKC, MASK_PACKC, match_opcode, 0 },
 {"scalu8",        "M",   "d,s,t",   MATCH_SCALU8, MASK_SCALU8, match_opcode, 0 },
+{"mfa",           "M",   "d,s,t",   MATCH_MFA, MASK_MFA, match_opcode, 0 },
+{"modcarrya",     "M",   "d,s,t",   MATCH_MODCARRYA, MASK_MODCARRYA, match_opcode, 0 },
+{"modcarryb",     "M",   "d,s,t",   MATCH_MODCARRYB, MASK_MODCARRYB, match_opcode, 0 },
+
 
 

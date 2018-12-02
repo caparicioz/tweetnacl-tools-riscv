@@ -380,7 +380,8 @@ sv M(gf o,const gf a,const gf b)
   i64 i,j,t[31];
   FOR(i,31) t[i]=0;
   FOR(i,16) FOR(j,16) t[i+j]+=a[i]*b[j];
-  FOR(i,15) t[i]+=38*t[i+16];
+  //FOR(i,15) t[i]+=38*t[i+16];
+  FOR(i,15) asm __volatile__ ("mfa %[z], %[x], %[y]\n\t" : [z] "=r" (t[i]) : [x] "r" (t[i]), [y] "r" (t[i+16])); 
   FOR(i,16) o[i]=t[i];
   car25519(o);
   car25519(o);
@@ -706,8 +707,10 @@ sv modL(u8 *r,i64 x[64])
     carry = 0;
     for (j = i - 32;j < i - 12;++j) {
       x[j] += carry - 16 * x[i] * L[j - (i - 32)];
-      carry = (x[j] + 128) >> 8;
-      x[j] -= carry << 8;
+      //carry = (x[j] + 128) >> 8;
+      asm __volatile__ ("modcarrya %[z], %[x], x0\n\t" : [z] "=r" (carry) : [x] "r" (x[j]));
+      //x[j] -= carry << 8;
+      asm __volatile__ ("modcarryb %[z], %[x], %[y]\n\t" : [z] "=r" (x[j]) : [x] "r" (x[j]), [y] "r" (carry));
     }
     x[j] += carry;
     x[i] = 0;
