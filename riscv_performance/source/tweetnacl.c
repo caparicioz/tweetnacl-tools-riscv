@@ -97,14 +97,14 @@ sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
 
   FOR(i,20) {
     FOR(j,4) {
-      //FOR(m,4) t[m] = x[(5*j+4*m)%16];
-      FOR(m,4) { asm __volatile__ ("idxc16 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (j), [y] "r" (m) ) ; t[m] = x[temp];}
+      FOR(m,4) t[m] = x[(5*j+4*m)%16];
+      //FOR(m,4) { asm __volatile__ ("idxc16 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (j), [y] "r" (m) ) ; t[m] = x[temp];}
       t[1] ^= L32(t[0]+t[3], 7);
       t[2] ^= L32(t[1]+t[0], 9);
       t[3] ^= L32(t[2]+t[1],13);
       t[0] ^= L32(t[3]+t[2],18);
-      //FOR(m,4) w[4*j+(j+m)%4] = t[m];
-      FOR(m,4) { asm __volatile__ ("idxc4 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (j), [y] "r" (m) ) ; w[temp] = t[m];}
+      FOR(m,4) w[4*j+(j+m)%4] = t[m];
+      //FOR(m,4) { asm __volatile__ ("idxc4 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (j), [y] "r" (m) ) ; w[temp] = t[m];}
     }
     FOR(m,16) x[m] = w[m];
   }
@@ -116,14 +116,14 @@ sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
       x[6+i] -= ld32(in+4*i);
     }
     FOR(i,4) {
-      asm __volatile__ ("arg4 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[5*i]);
       //st32(out+4*i,x[5*i]);
-      asm __volatile__ ("arg16 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[6+i]);
+      asm __volatile__ ("arg4 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[5*i]);
       //st32(out+16+4*i,x[6+i]);
+      asm __volatile__ ("arg16 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[6+i]);
     }
   } else
-    FOR(i,16){asm __volatile__ ("arg4 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[i] + y[i]);}
     //FOR(i,16) st32(out + 4 * i,x[i] + y[i]);
+    FOR(i,16){asm __volatile__ ("arg4 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (out), [y] "r" (i) ) ; st32(tmp,x[i] + y[i]);}
 }
 
 int crypto_core_salsa20(u8 *out,const u8 *in,const u8 *k,const u8 *c)
@@ -222,10 +222,8 @@ int crypto_onetimeauth(u8 *out,const u8 *m,u64 n,const u8 *k)
     add1305(h,c);
     FOR(i,17) {
       x[i] = 0;
-      //FOR(j,17) x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[i + 17 - j]);
-      FOR(j,17)  {asm __volatile__ ("addsub17 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (i), [y] "r" (j)); 
-                  x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[tmp]);
-      }
+      FOR(j,17) x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[i + 17 - j]);
+      //FOR(j,17)  {asm __volatile__ ("addsub17 %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (i), [y] "r" (j)); x[i] += h[j] * ((j <= i) ? r[i - j] : 320 * r[tmp]);}
     }
     FOR(i,17) h[i] = x[i];
     u = 0;
@@ -509,7 +507,8 @@ int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
   return crypto_box_open_afternm(m,c,d,n,k);
 }
 
-static u64 R(u64 x,int c) { return (x >> c) | (x << (64 - c)); }
+//static u64 R(u64 x,int c) { return (x >> c) | (x << (64 - c)); }
+static u64 R(u64 x, int c) { u64 temp; asm __volatile__ ("sub64 %[z], %[x], %[y]\n\t" : [z] "=r" (temp) : [x] "r" (x), [y] "r" (c)); return temp; }
 static u64 Ch(u64 x,u64 y,u64 z) { return (x & y) ^ (~x & z); }
 static u64 Maj(u64 x,u64 y,u64 z) { return (x & y) ^ (x & z) ^ (y & z); }
 static u64 Sigma0(u64 x) { return R(x,28) ^ R(x,34) ^ R(x,39); }
@@ -660,8 +659,8 @@ sv scalarmult(gf p[4],gf q[4],const u8 *s)
   set25519(p[2],gf1);
   set25519(p[3],gf0);
   for (i = 255;i >= 0;--i) {
-    //u8 b = (s[i/8]>>(i&7))&1;
-    u8 b; asm __volatile__("scalu8 %[z], %[x], %[y]\n\t" : [z] "=r" (b) : [x] "r" (s[1/8]), [y] "r" (i));
+    u8 b = (s[i/8]>>(i&7))&1;
+    //u8 b; asm __volatile__("scalu8 %[z], %[x], %[y]\n\t" : [z] "=r" (b) : [x] "r" (s[1/8]), [y] "r" (i));
     cswap(p,q,b);
     add(q,p);
     add(p,p);
