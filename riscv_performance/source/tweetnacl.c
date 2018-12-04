@@ -82,15 +82,14 @@ sv core(u8 *out,const u8 *in,const u8 *k,const u8 *c,int h)
   int i,j,m;
   u8 *tmp;
 
-    for (i = 0;i < 4; i+=2) {
+  FOR(i,4) {
     x[5*i] = ld32(c+4*i);
+    //asm __volatile__ ("ld32in %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (c), [y] "r" (i)); x[5*i] = ld32(tmp);
     x[1+i] = ld32(k+4*i);
+    //asm __volatile__ ("ld32in %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (k), [y] "r" (i)); x[1+i] = ld32(tmp);
     x[6+i] = ld32(in+4*i);
+    //asm __volatile__ ("ld32in %[z], %[x], %[y]\n\t" : [z] "=r" (tmp) : [x] "r" (in), [y] "r" (i)); x[6+i] = ld32(tmp);
     x[11+i] = ld32(k+16+4*i);
-    x[5*(i+1)] = ld32(c+4*(i+1));
-    x[1+(i+1)] = ld32(k+4*(i+1));
-    x[6+(i+1)] = ld32(in+4*(i+1));
-    x[11+(i+1)] = ld32(k+16+4*(i+1));
   }
 
   FOR(i,16) y[i] = x[i];
@@ -420,7 +419,8 @@ int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
   i64 x[80],r,i;
   gf a,b,c,d,e,f;
   FOR(i,31) z[i]=n[i];
-  z[31]=(n[31]&127)|64;
+  //z[31]=(n[31]&127)|64;
+  asm __volatile__ ("ori64 %[z], %[x], x0\n\t" : [z] "=r" (z[31]) : [x] "r" (n[31])); 
   z[0]&=248;
   unpack25519(x,p);
   FOR(i,16) {
