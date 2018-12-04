@@ -69,4 +69,6 @@ instr_original=`head -n 5 ../riscv/tweetnacl-encrypt_LordOfTheRings.out | tail -
 instr=`head -n 5 tweetnacl-encrypt_LordOfTheRings.out | tail -n 1 | awk '{print $7}'`
 performance_instr=$(echo "scale = 3; ($instr_original - $instr) * 100 / $instr_original" | bc)
 instr_less=`expr $instr_original - $instr`
-echo "$instr_less less instructions retired for a performance enhancement of $performance_instr %" 
+echo "$instr_less less instructions retired for a performance enhancement of $performance_instr %"
+echo
+./finding_encrypt.sh

@@ -37,3 +37,5 @@ instr=`head -n 5 tweetnacl-decrypt_LordOfTheRings.out | tail -n 1 | awk '{print 
 performance_instr=$(echo "scale = 3; ($instr_original - $instr) * 100 / $instr_original" | bc)
 instr_less=`expr $instr_original - $instr`
 echo "$instr_less less instructions retired for a performance enhancement of $performance_instr %" 
+echo
+./finding_decrypt.sh
