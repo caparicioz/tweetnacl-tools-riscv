@@ -419,7 +419,8 @@ int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
   i64 x[80],r,i;
   gf a,b,c,d,e,f;
   FOR(i,31) z[i]=n[i];
-  z[31]=(n[31]&127)|64;
+  //z[31]=(n[31]&127)|64;
+  asm __volatile__ ("ori64 %[z], %[x], x0\n\t" : [z] "=r" (z[31]) : [x] "r" (n[31])); 
   z[0]&=248;
   unpack25519(x,p);
   FOR(i,16) {
